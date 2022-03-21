@@ -20,6 +20,10 @@ void TFT_eButton::setPressAction(pressCallback action)
   pressAction = action;
 }
 
+void TFT_eButton::setLongPressAction(longPressCallback action)
+{
+  longPressAction = action;
+}
 void TFT_eButton::setReleaseAction(releaseCallback action)
 {
   releaseAction = action;

@@ -20,8 +20,9 @@
 #include <TFT_eSPI.h>
 
 typedef void (*pressCallback)(void);
+typedef void (*longPressCallback)(uint8_t btnNum, uint8_t longPressTime, uint8_t longPressInc);
 typedef void (*releaseCallback)(void);
- static void dummyButtonAction(void) { }; // In case user calls it but it is not defined!
+static void dummyButtonAction(void) { }; // In case user calls it but it is not defined!
 
 
 class TFT_eButton : public TFT_eSPI {
@@ -40,6 +41,7 @@ class TFT_eButton : public TFT_eSPI {
   void     setLabelDatum(int16_t x_delta, int16_t y_delta, uint8_t datum = MC_DATUM);
 
   void     setPressAction(pressCallback action);
+  void     setLongPressAction(longPressCallback action);
   void     setReleaseAction(releaseCallback action);
 
   void     setPressTime(uint32_t pressTime)    { _pressTime  = pressTime; }
@@ -60,6 +62,7 @@ class TFT_eButton : public TFT_eSPI {
 
   bool     getState(void) {return _inverted;}        // Get inverted state, true = inverted
   pressCallback   pressAction   = dummyButtonAction; // Press   action callback
+  longPressCallback longPressAction = {}; // Long Press   action callback
   releaseCallback releaseAction = dummyButtonAction; // Release action callback
 
  private:
