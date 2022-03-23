@@ -20,7 +20,7 @@
 #include <TFT_eSPI.h>
 
 typedef void (*pressCallback)(void);
-typedef void (*longPressCallback)(uint8_t btnNum, uint8_t longPressTime, uint8_t longPressInc);
+typedef void (*longPressCallback)(uint8_t btnNum, uint32_t longPressTime, uint8_t longPressInc);
 typedef void (*releaseCallback)(void);
 static void dummyButtonAction(void) { }; // In case user calls it but it is not defined!
 
