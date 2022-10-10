@@ -13,6 +13,7 @@ TFT_eButton::TFT_eButton(TFT_eSPI *tft) {
   currstate  = false;
   laststate  = false;
   _inverted  = false;
+  page      = 0;
 }
 
 void TFT_eButton::setPressAction(pressCallback action)
@@ -30,14 +31,15 @@ void TFT_eButton::setReleaseAction(releaseCallback action)
 }
 
 // Classic initButton() function: pass center & size
-void TFT_eButton::initButton(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t outline, uint16_t fill, uint16_t textcolor, char *label, uint8_t textsize)
+void TFT_eButton::initButton(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t outline, uint16_t fill, uint16_t textcolor, char *label, uint8_t textsize, uint8_t p)
+
 {
   // Tweak arguments and pass to the newer initButtonUL() function...
-  initButtonUL(x - (w / 2), y - (h / 2), w, h, outline, fill, textcolor, label, textsize);
+  initButtonUL(x - (w / 2), y - (h / 2), w, h, outline, fill, textcolor, label, textsize, p);
 }
 
 // Newer function instead accepts upper-left corner & size
-void TFT_eButton::initButtonUL(int16_t x1, int16_t y1, uint16_t w, uint16_t h, uint16_t outline, uint16_t fill, uint16_t textcolor, char *label, uint8_t textsize)
+void TFT_eButton::initButtonUL(int16_t x1, int16_t y1, uint16_t w, uint16_t h, uint16_t outline, uint16_t fill, uint16_t textcolor, char *label, uint8_t textsize, uint8_t p)
 {
   _x1           = x1;
   _y1           = y1;
@@ -51,6 +53,7 @@ void TFT_eButton::initButtonUL(int16_t x1, int16_t y1, uint16_t w, uint16_t h, u
   strncpy(_label, label, 9);
   _pressTime    = 0xFFFFFFFF;
   _releaseTime  = 0xFFFFFFFF;
+  page          = p;
 }
 
 // Adjust text datum and x, y deltas

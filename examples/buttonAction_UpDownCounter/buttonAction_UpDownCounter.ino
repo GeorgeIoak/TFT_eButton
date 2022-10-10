@@ -34,13 +34,14 @@ TFT_eButton btnDOWN = TFT_eButton(&tft);
 
 #define BUTTON_W 100
 #define BUTTON_H 50
+#define desiredTempYpos tft.height()/2
 
 // Create an array of button instances to use in for() loops
 // This is more useful where large numbers of buttons are employed
 TFT_eButton* btn[] = {&btnUP , &btnDOWN};;
 uint8_t buttonCount = sizeof(btn) / sizeof(btn[0]);
 
-void btnCommonAction(uint8_t btnNum, uint8_t longPressTime, uint8_t longPressInc)
+void btnCommonAction(uint8_t btnNum, uint32_t longPressTime, uint16_t longPressInc)
 {
   if (btn[btnNum]->justPressed())  {
     btn[btnNum]->drawSmoothButton(true);
@@ -52,13 +53,13 @@ void btnCommonAction(uint8_t btnNum, uint8_t longPressTime, uint8_t longPressInc
     btn[btnNum]->setPressTime(millis());
     switch (btnNum)  {
       case 0: // UP Button
-        if (desiredTemp < MAX_H2O_TEMP)
+        if (desiredTemp < (MAX_H2O_TEMP - longPressInc))
           desiredTemp += longPressInc;
         else
           desiredTemp = MAX_H2O_TEMP;
         break;
       case 1:  // DOWN Button
-        if (desiredTemp > MIN_H2O_TEMP)
+        if (desiredTemp > (MIN_H2O_TEMP + longPressInc))
           desiredTemp -= longPressInc;
         else
           desiredTemp = MIN_H2O_TEMP;
@@ -68,7 +69,7 @@ void btnCommonAction(uint8_t btnNum, uint8_t longPressTime, uint8_t longPressInc
     }
   }
   tft.setTextColor(TFT_BLUE, TFT_BLACK);
-  tft.drawNumber(desiredTemp, tft.width()/2, ((tft.height()/2)-180), 8);
+  tft.drawNumber(desiredTemp, tft.width()/2, (desiredTempYpos), 8);
 }
 
 void btnUP_pressAction(void)
@@ -83,7 +84,7 @@ void btnUP_releaseAction(void)
 {
   static uint32_t waitTime = 1000;
   if (btnUP.justReleased()) {
-    Serial.println("Left button just released");
+    Serial.println("UP button just released");
     btnUP.drawSmoothButton(false);
     btnUP.setReleaseTime(millis());
     //waitTime = 10000;
@@ -115,7 +116,7 @@ void btnDOWN_pressAction(void)
 
   // if button pressed for more than 1 sec...
   if (millis() - btnDOWN.getPressTime() >= 1000) {
-    Serial.println("Down Button pressed for 1 second.......");
+    Serial.println("DOWN Button pressed for 1 second.......");
     btnDOWN.setPressTime(millis());
     if (desiredTemp > MIN_H2O_TEMP)
       desiredTemp -= TEMP_INCREMENT;
@@ -123,7 +124,7 @@ void btnDOWN_pressAction(void)
       desiredTemp = MIN_H2O_TEMP;
   }
   tft.setTextColor(TFT_BLUE, TFT_BLACK);
-  tft.drawNumber(desiredTemp, tft.width()/2, ((tft.height()/2)-180), 8);
+  tft.drawNumber(desiredTemp, tft.width()/2, (desiredTempYpos), 8);
 //  else Serial.println("DOWN button is being pressed");
 }
 
@@ -131,7 +132,7 @@ void btnDOWN_releaseAction(void)
 {
   static uint32_t waitTime = 1000;
   if (btnDOWN.justReleased()) {
-    Serial.println("Left button just released");
+    Serial.println("DOWN button just released");
     btnDOWN.drawSmoothButton(false);
     btnDOWN.setReleaseTime(millis());
     //waitTime = 10000;
@@ -148,21 +149,26 @@ void btnDOWN_releaseAction(void)
     }
   }
   tft.setTextColor(TFT_BLUE, TFT_BLACK);
-  tft.drawNumber(desiredTemp, tft.width()/2, ((tft.height()/2)-180), 8);
+  //tft.drawNumber(desiredTemp, tft.width()/2, ((tft.height()/2)-180), 8);
+  tft.drawNumber(desiredTemp, tft.width()/2, (desiredTempYpos), 8);
 }
 
 void initButtons() {
   uint16_t x = (tft.width() - BUTTON_W) / 2;
-  uint16_t y = tft.height() / 2 - BUTTON_H - 10;
-  btnUP.initButtonUL(x, y, BUTTON_W, BUTTON_H, TFT_WHITE, TFT_RED, TFT_BLACK, "UP", 1);
+  //uint16_t y = tft.height() / 2 - BUTTON_H - 10;
+  uint16_t y = tft.height() / 4 ;
+  Serial.print("UP Button Y is "); Serial.println(y);
+  btnUP.initButtonUL(x, y, BUTTON_W, BUTTON_H, TFT_WHITE, TFT_BLACK, TFT_RED, "UP", 1);
   //btnUP.setPressAction(btnUP_pressAction);
   //btnUP.setPressAction(btnCommonAction(0, 1000, 5));  // btn#, long press time, long press increment
   btnUP.setLongPressAction(btnCommonAction);  // btn#, long press time, long press increment
   btnUP.setReleaseAction(btnUP_releaseAction);
   btnUP.drawSmoothButton(false, 3, TFT_BLACK); // 3 is outline width, TFT_BLACK is the surrounding background colour for anti-aliasing
 
-  y = tft.height() / 2 + 10;
-  btnDOWN.initButtonUL(x, y, BUTTON_W, BUTTON_H, TFT_WHITE, TFT_BLACK, TFT_GREEN, "DOWN", 1);
+  //y = tft.height() / 2 + 10;
+  y = (3 * tft.height()) / 4 - BUTTON_H ;
+  Serial.print("DOWN Button Y is "); Serial.println(y);
+  btnDOWN.initButtonUL(x, y, BUTTON_W, BUTTON_H, TFT_WHITE, TFT_BLACK, TFT_RED, "DOWN", 1);
   //btnDOWN.setPressAction(btnDOWN_pressAction);
   btnDOWN.setLongPressAction(btnCommonAction);
   btnDOWN.setReleaseAction(btnDOWN_releaseAction);
@@ -201,7 +207,7 @@ void setup() {
   initButtons();
   tft.setTextColor(TFT_BLUE, TFT_BLACK);
   tft.setTextDatum(MC_DATUM);
-  tft.drawNumber(DEFAULT_TEMP, tft.width()/2, ((tft.height()/2)-180), 8);
+  tft.drawNumber(DEFAULT_TEMP, tft.width()/2, (desiredTempYpos), 8);
   
 }
 
